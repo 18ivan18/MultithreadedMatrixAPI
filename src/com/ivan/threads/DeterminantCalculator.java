@@ -1,9 +1,11 @@
 package com.ivan.threads;
 
 import com.ivan.matrix.Matrix;
+import com.ivan.utils.Pair;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 
 public class DeterminantCalculator implements Runnable {
 
@@ -11,41 +13,34 @@ public class DeterminantCalculator implements Runnable {
     private int offset;
     private int start;
     private int end;
+    ArrayList<Pair<Integer, int[][]>> tasks;
 
-    public DeterminantCalculator(Matrix matrix, int offset, int start) {
+    public DeterminantCalculator(Matrix matrix, int offset, int start, ArrayList<Pair<Integer, int[][]>> tasks) {
         this.matrix = matrix;
         this.offset = offset;
         this.start = start;
-        this.end = matrix.getSize();
+        this.end = tasks.size();
+        this.tasks = tasks;
     }
 
     @Override
     public String toString() {
         return "DeterminantCalculator{" +
-                "matrix=" + matrix +
-                ", offset=" + offset +
+                " offset=" + offset +
                 ", start=" + start +
                 ", end=" + end +
+                ", tasks=" + tasks +
                 '}';
     }
 
     @Override
     public void run() {
         Instant begin = Instant.now();
-        if (matrix.getSize() == 2) {
-            matrix.incrementDeterminant(matrix.getMatrix()[0][0] * matrix.getMatrix()[1][1] -
-                    matrix.getMatrix()[0][1] * matrix.getMatrix()[1][0]);
+        for (int i = start; i < end; i+=offset)
+        {
+            matrix.incrementDeterminant(tasks.get(i).first * Matrix.calculateDeterminant(tasks.get(i).second));
         }
-        else {
-            int cofactor;
-            for (int i = start; i < end; i+=offset)
-            {
-                cofactor = (int)Math.pow(-1, i);
-                int[][] minorMatrix = Matrix.getMinor(matrix.getMatrix(), matrix.getSize(), 0, i);
-                matrix.incrementDeterminant(cofactor * matrix.getMatrix()[0][i] *
-                        matrix.calculateDeterminant(minorMatrix));
-            }
-        }
+
         Instant end = Instant.now();
         System.out.println(Thread.currentThread().getName() + " execution time was : " +
                 Duration.between(begin, end).toMillis() + " ms");

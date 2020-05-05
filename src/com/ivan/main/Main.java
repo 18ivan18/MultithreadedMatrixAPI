@@ -7,11 +7,15 @@ import java.io.FileNotFoundException;
 import java.io.PrintStream;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Arrays;
+import java.util.Random;
 import java.util.stream.IntStream;
 
 public class Main {
     public static void main(String[] args) {
+        int SIZE = 8;
+        if (args[0] != null) {
+            SIZE = Integer.parseInt(args[0]);
+        }
         PrintStream o = null;
         try {
             o = new PrintStream(new File("outputFile.txt"));
@@ -21,24 +25,33 @@ public class Main {
         // Assign o to output stream
         System.setOut(o);
 
-        //works
-        int[][] m = {   { 4, 7, 8, 6, 4, 6, 7, 3, 10, 2},
-                { 3, 8, 1, 10, 4, 7, 1, 7, 3, 7 },
-                { 12, 9, 8, 10, 3, 1, 3, 4, 8, 6 },
-                { 10, 3, 3, 9, 10, 8, 4, 7, 2, 3 },
-                { 10, 4, 2, 10, 5, 8, 9, 5, 6, 1, },
-                { 7, 2, 1, 7, 4, 3, 1, 7, 2, 6 },
-                { 5, 8, 7, 6, 7, 10, 4, 8, 5, 6 },
-                { 3, 6, 5, 8, 5, 5, 4, 1, 8, 9 },
-                { 7, 9, 9, 5, 4, 2, 5, 10, 3, 1 },
-                { 7, 9, 10, 3, 7, 7, 5, 10, 6, 4}
-        };
+        final int THREADS = 16;
+        int[][] m = new int[SIZE][];
+        for (int i = 0; i < SIZE; i++) {
+            m[i] = new int[SIZE];
+        }
+        Random random = new Random();
+        for (int i = 0; i < SIZE; i++) {
+            for (int j = 0; j < SIZE; j++) {
+                m[i][j] = random.nextInt(SIZE);
+            }
+        }
+
+        for (int i = 0; i < SIZE; i++)
+        {
+            for (int j = 0; j < SIZE; j++)
+            {
+                System.out.print(m[i][j] + " ");
+            }
+            System.out.print("\n");
+        }
+
         Matrix matrix = new Matrix(m);
 
         System.out.println("Determinant should be: " + matrix.getDeterminant());
 
         try {
-            for (int i : IntStream.range(1, 11).toArray()) {
+            for (int i : IntStream.range(1, THREADS + 1).toArray()) {
                 Instant start = Instant.now();
                 matrix.calculateDeterminantAsync(i);
                 Instant end = Instant.now();
@@ -49,8 +62,5 @@ public class Main {
             System.out.println("Error! " + e.getMessage());
             e.printStackTrace();
         }
-
-
-
     }
 }

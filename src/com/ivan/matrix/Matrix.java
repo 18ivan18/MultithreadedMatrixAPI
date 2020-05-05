@@ -2,7 +2,9 @@ package com.ivan.matrix;
 
 
 import com.ivan.threads.DeterminantCalculator;
+import com.ivan.utils.Pair;
 
+import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -39,12 +41,40 @@ public class Matrix {
         ExecutorService executor = Executors.newFixedThreadPool(numberOfThreads);
 
         determinant = 0;
+        ArrayList<Pair<Integer, int[][]>> tasks = getTasks(numberOfThreads);
         for (int i = 0; i < numberOfThreads; i++) {
-            executor.execute(new DeterminantCalculator(this, numberOfThreads, i));
+            executor.execute(new DeterminantCalculator(this, numberOfThreads, i, tasks));
         }
 
         executor.shutdown();
-        executor.awaitTermination(1, TimeUnit.MINUTES);
+        executor.awaitTermination(5, TimeUnit.MINUTES);
+    }
+
+    private ArrayList<Pair<Integer, int[][]>> getTasks(int numberOfThreads) {
+        ArrayList<Pair<Integer, int[][]>> result = new ArrayList<>();
+        int cofactor = -1;
+        for (int i = 0; i < size; i++) {
+            cofactor *= -1;
+            result.add(new Pair<>(cofactor * matrix[0][i], getMinor(matrix, size, 0, i)));
+        }
+
+        if (numberOfThreads > size) {
+            ArrayList<Pair<Integer, int[][]>> newResult = new ArrayList<>();
+            int factor;
+            int[][] minor;
+            for (Pair<Integer, int[][]> integerPair : result) {
+                factor = integerPair.first;
+                minor = integerPair.second;
+                cofactor = -1;
+                for (int j = 0; j < minor.length; j++) {
+                    cofactor *= -1;
+                    newResult.add(new Pair<>(cofactor * factor * minor[0][j],
+                            getMinor(minor, minor.length, 0, j)));
+                }
+            }
+            return newResult;
+        }
+        return result;
     }
 
     public int getSize() {
