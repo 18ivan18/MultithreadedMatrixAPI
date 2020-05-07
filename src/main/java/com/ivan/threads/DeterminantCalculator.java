@@ -6,6 +6,7 @@ import com.ivan.utils.Pair;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class DeterminantCalculator implements Runnable {
 
@@ -13,7 +14,7 @@ public class DeterminantCalculator implements Runnable {
     private int offset;
     private int start;
     private int end;
-    ArrayList<Pair<Integer, int[][]>> tasks;
+    private ArrayList<Pair<Integer, int[][]>> tasks;
 
     public DeterminantCalculator(Matrix matrix, int offset, int start, ArrayList<Pair<Integer, int[][]>> tasks) {
         this.matrix = matrix;

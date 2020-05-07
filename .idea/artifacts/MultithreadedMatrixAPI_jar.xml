@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="MultithreadedMatrixAPI:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/MultithreadedMatrixAPI_jar</output-path>
+    <root id="archive" name="MultithreadedMatrixAPI.jar">
+      <element id="module-output" name="MultithreadedMatrixAPI" />
+    </root>
+  </artifact>
+</component>
