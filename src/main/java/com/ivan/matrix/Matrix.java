@@ -3,15 +3,18 @@ package com.ivan.matrix;
 
 import com.ivan.threads.DeterminantCalculator;
 import com.ivan.threads.GaussianEliminationRowThread;
+import com.ivan.utils.AtmoicBigInteger;
 import com.ivan.utils.AtomicBigDecimal;
 import com.ivan.utils.Pair;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Matrix {
     private int size;
@@ -31,20 +34,21 @@ public class Matrix {
         this.size = matrix.length;
     }
 
-    public void calculateDeterminantAsync(int numberOfThreads) throws InterruptedException {
+    public static void calculateDeterminantAsync(int[][] matrix, int numberOfThreads) throws InterruptedException {
         ExecutorService executor = Executors.newFixedThreadPool(numberOfThreads);
 
-        determinant = 0;
-        ArrayList<Pair<Integer, int[][]>> tasks = getTasks(numberOfThreads);
+        AtmoicBigInteger.getInstance().setValue(BigInteger.ZERO);
+        ArrayList<Pair<Integer, int[][]>> tasks = getTasks(matrix, numberOfThreads);
         for (int i = 0; i < numberOfThreads; i++) {
-            executor.execute(new DeterminantCalculator(this, numberOfThreads, i, tasks));
+            executor.execute(new DeterminantCalculator(numberOfThreads, i, tasks));
         }
 
         executor.shutdown();
         executor.awaitTermination(5, TimeUnit.MINUTES);
     }
 
-    private ArrayList<Pair<Integer, int[][]>> getTasks(int numberOfThreads) {
+    static private ArrayList<Pair<Integer, int[][]>> getTasks(int[][] matrix, int numberOfThreads) {
+        int size = matrix.length;
         ArrayList<Pair<Integer, int[][]>> result = new ArrayList<>();
         int cofactor = -1;
         for (int i = 0; i < size; i++) {

@@ -1,23 +1,23 @@
 package com.ivan.threads;
 
 import com.ivan.matrix.Matrix;
+import com.ivan.utils.AtmoicBigInteger;
+import com.ivan.utils.AtomicBigDecimal;
 import com.ivan.utils.Pair;
 
+import java.math.BigInteger;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class DeterminantCalculator implements Runnable {
-
-    private Matrix matrix;
     private int offset;
     private int start;
     private int end;
     private ArrayList<Pair<Integer, int[][]>> tasks;
 
-    public DeterminantCalculator(Matrix matrix, int offset, int start, ArrayList<Pair<Integer, int[][]>> tasks) {
-        this.matrix = matrix;
+    public DeterminantCalculator(int offset, int start, ArrayList<Pair<Integer, int[][]>> tasks) {
         this.offset = offset;
         this.start = start;
         this.end = tasks.size();
@@ -39,7 +39,7 @@ public class DeterminantCalculator implements Runnable {
         Instant begin = Instant.now();
         for (int i = start; i < end; i+=offset)
         {
-            matrix.incrementDeterminant(tasks.get(i).first * Matrix.calculateDeterminant(tasks.get(i).second));
+            AtmoicBigInteger.getInstance().addAndGet(BigInteger.valueOf(tasks.get(i).first * Matrix.calculateDeterminant(tasks.get(i).second)));
         }
 
         Instant end = Instant.now();
